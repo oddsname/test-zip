@@ -1,11 +1,15 @@
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
 
-export async function POST(request: Request) {
+type RouteParams = { params: Promise<{ id: string }> }
+
+export async function PUT(request: Request, { params }: RouteParams) {
     try {
+        const { id } = await params
+
         const { name, email, created_at } = await request.json();
 
-        await prisma.user.create({
+        const user = await prisma.user.update({
+            where: { id: Number(id) },
             data: {
                 name,
                 email,
@@ -14,10 +18,10 @@ export async function POST(request: Request) {
         })
 
         return Response.json({
-            success: true,
-            data: { name, },
+            data: { ...user },
         });
-    } catch (e: unknown) {
+    } catch (e) {
+        console.log(e);
         return new Response((e as Error).message, {
             status: 400,
             headers: { 'Content-Type': 'application/json' },

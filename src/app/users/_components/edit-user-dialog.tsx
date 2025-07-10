@@ -9,15 +9,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
 import { z } from 'zod';
-import { DATE_FORMAT } from "@/lib/date"
+import { ErrorMessage } from "@/components/ui/error-message"
+import { UserParams } from "@/interfaces/users"
+import { DATE_FORMAT, DateHelper } from "@/lib/date"
 
 const schema = z.object({
   name: z.string().min(3, 'Name is required'),
@@ -31,71 +31,68 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-interface UserProps {
-  name: string,
-  email: string,
-  created_at: Date,
-  id: number,
+interface EditUserDialogProps {
+  user: UserParams,
+  open: boolean,
+  setOpen: (val: boolean) => void,
+  onSave: (data: UserParams) => void
 }
 
-export function EditUserDialog({ user, children }: { user: UserProps, children: React.ReactNode }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
+export function EditUserDialog({ open, user, setOpen, onSave }: EditUserDialogProps) {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: user.name,
-      email: user.email,
-      created_at: user.created_at instanceof Date ? format(user.created_at, DATE_FORMAT) : '',
+      ...user,
+      created_at: DateHelper.instance().toString(user.created_at, DATE_FORMAT)
     }
   });
 
   const onSubmit = (data: FormData) => {
-    console.log('Submitted:', data);
+    const userParams: UserParams = {
+      ...data,
+      created_at: new Date(data.created_at),
+      id: user.id
+    }
+
+    onSave(userParams);
+    reset();
   };
 
   return (
-    <Dialog>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogTrigger asChild>
-          {children}
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Create new Item</DialogTitle>
-            <DialogDescription>
-              Fill in the details for a new item.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label>Name</Label>
-              <Input {...register('name')} />
-              <p className="text-red-700">{errors.name || ''}</p>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Email</Label>
-              <Input {...register('email')} />
-              <p className="text-red-700">{errors.name || ''}</p>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Created At</Label>
-              <Input {...register('created_at')} />
-              <p className="text-red-700">{errors.name || ''}</p>
-            </div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit Item</DialogTitle>
+          <DialogDescription>
+            Update the item details
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid gap-3">
+            <Label>Name</Label>
+            <Input {...register('name')} />
+            <ErrorMessage>{errors?.name?.message}</ErrorMessage>
           </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </form>
+
+          <div className="grid gap-3">
+            <Label>Email</Label>
+            <Input {...register('email')} />
+            <ErrorMessage>{errors?.email?.message}</ErrorMessage>
+          </div>
+
+          <div className="grid gap-3">
+            <Label>Created At</Label>
+            <Input {...register('created_at')} />
+            <ErrorMessage>{errors?.created_at?.message}</ErrorMessage>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="submit" onClick={handleSubmit(onSubmit)}>Save changes</Button>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   )
 }

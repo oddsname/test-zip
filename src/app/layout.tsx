@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from 'sonner'
-import "@/init.ts"
+import "./provider"
 
+//Load styles
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Toaster position="bottom-right" richColors/>
+        <Toaster position="bottom-right" richColors />
         {children}
       </body>
     </html>

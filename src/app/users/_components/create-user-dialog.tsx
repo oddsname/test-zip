@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,7 +16,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ErrorMessage } from "@/components/ui/error-message"
-import { toast } from "sonner"
+import { UserParams } from "@/interfaces/users"
+import { useEffect } from "react"
 
 const schema = z.object({
   name: z.string().min(3, 'Name is required'),
@@ -31,19 +31,23 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-interface CreateUserDialogProps { open: boolean }
+interface CreateUserDialogProps { open: boolean, setOpen: (val: boolean) => void, onSave: (data: Omit<UserParams, 'id'>) => void }
 
-export function CreateUserDialog({ open }: CreateUserDialogProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+export function CreateUserDialog({ open, setOpen, onSave }: CreateUserDialogProps) {
+  const { register, handleSubmit, reset, formState: { errors, } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: { email: '', name: '', created_at: '', }
   });
 
   const onSubmit = (data: FormData) => {
-    toast.info('New user created successfully');
+    const userParams: Omit<UserParams, 'id'> = { ...data, created_at: new Date(data.created_at) }
+
+    reset();
+    onSave(userParams);
   };
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create new Item</DialogTitle>
@@ -54,27 +58,27 @@ export function CreateUserDialog({ open }: CreateUserDialogProps) {
         <div className="grid gap-4">
           <div className="grid gap-3">
             <Label>Name</Label>
-            <Input {...register('name')} />
+            <Input {...register('name')} defaultValue="" />
             <ErrorMessage>{errors?.name?.message}</ErrorMessage>
           </div>
 
           <div className="grid gap-3">
             <Label>Email</Label>
-            <Input {...register('email')} />
+            <Input {...register('email')} defaultValue="" />
             <ErrorMessage>{errors?.email?.message}</ErrorMessage>
           </div>
 
           <div className="grid gap-3">
             <Label>Created At</Label>
-            <Input {...register('created_at')} />
+            <Input {...register('created_at')} defaultValue="" />
             <ErrorMessage>{errors?.created_at?.message}</ErrorMessage>
           </div>
         </div>
         <DialogFooter>
+          <Button type="submit" onClick={handleSubmit(onSubmit)}>Save changes</Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button type="submit" onClick={handleSubmit(onSubmit)}>Save changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
