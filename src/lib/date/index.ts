@@ -18,7 +18,6 @@ class DateHelper {
     }
 }
 
-
 export {
     DateHelper,
     DateFnsHelper,

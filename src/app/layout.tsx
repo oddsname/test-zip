@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from 'sonner'
-import "./provider"
-
+import "./provider-client"
+import "./provider-server"
 //Load styles
 import "./globals.css";
 
@@ -18,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Toaster position="bottom-right" richColors />
+        <Toaster
+          position="bottom-right"
+          richColors
+        />
         {children}
       </body>
     </html>

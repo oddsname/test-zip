@@ -43,7 +43,7 @@ export function EditUserDialog({ open, user, setOpen, onSave }: EditUserDialogPr
     resolver: zodResolver(schema),
     defaultValues: {
       ...user,
-      created_at: DateHelper.instance().toString(user.created_at, DATE_FORMAT)
+      created_at: DateHelper.instance()?.toString(user.created_at, DATE_FORMAT)
     }
   });
 

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { DATE_FORMAT, DateHelper } from "@/lib/date";
 import { usersApi } from "@/services/users";
 import { UserParams } from "@/interfaces/users";
+import { FileUploader } from "@/components/file-uploader";
 
 
 export default function Page() {
@@ -77,7 +78,10 @@ export default function Page() {
     <Card className="m-8 p-4">
       <div className="flex justify-end gap-4">
         <Button onClick={() => setCreateUserDialog(true)}>Create Item</Button>
-        <Button variant="outline">Upload XLSX</Button>
+
+        <FileUploader>
+          <Button variant="outline">Upload XLSX</Button>
+        </FileUploader>
       </div>
 
       <Table>
@@ -109,7 +113,7 @@ export default function Page() {
       </Table>
 
       <CreateUserDialog open={createUserDialog} setOpen={setCreateUserDialog} onSave={onUserCreate} />
-      <EditUserDialog open={updateUserDialog} user={userToEdit} setOpen={setUpdateUserDialog} onSave={onUserUpdate} key={JSON.stringify(userToEdit)} />
+      <EditUserDialog open={updateUserDialog} user={userToEdit} setOpen={setUpdateUserDialog} onSave={onUserUpdate} key={updateUserDialog + ""} />
     </Card>
   )
 }
