@@ -1,5 +1,5 @@
-import { ExcelHelper } from "@/lib/excel";
-import { prisma } from "@/lib/prisma";
+import { ExcelHelper } from "@/intrastructure/excel";
+import { prisma } from "@/intrastructure/prisma";
 
 export async function GET(request: Request) {
     try {

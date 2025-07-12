@@ -1,19 +1,21 @@
+import { UserFormParams } from "@/domain/user/users-interface";
 import { prisma } from "@/intrastructure/prisma";
 
 export async function POST(request: Request) {
     try {
-        const { name, email, created_at } = await request.json();
-        
-        const user = await prisma.user.create({
-            data: {
-                name,
-                email,
-                created_at
-            }
+        const data = await request.json();
+
+        const users = data.map((item: UserFormParams) => ({
+            ...item,
+            created_at: new Date(item.created_at)
+        }))
+
+        await prisma.user.createMany({
+            data: users
         })
 
         return Response.json({
-            data: user,
+            data: { message: "Success" },
         });
     } catch (e) {
         console.log(e);

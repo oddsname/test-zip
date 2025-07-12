@@ -1,5 +1,5 @@
-import { HttpRequest } from "@/lib/http"
-import { UserParams } from "@/interfaces/users";
+import { HttpRequest } from "@/intrastructure/http"
+import { UserParams, UserFormParams } from "./users-interface";
 
 export const usersApi = {
     getAllUsers: async (): Promise<UserParams[]> => {
@@ -9,13 +9,17 @@ export const usersApi = {
         return resp.data;
     },
 
-    createUser: async (data: Omit<UserParams, 'id'>): Promise<UserParams> => {
+    createUser: async (data: UserFormParams): Promise<UserParams> => {
         const resp = await HttpRequest.instance().POST<{ data: UserParams }>('/api/users/create', data);
 
         return resp.data;
     },
 
-    updateUser: async (id: number, data: Omit<UserParams, 'id'>): Promise<UserParams> => {
+    createUsers: async (data: UserFormParams[]): Promise<void> => {
+        await HttpRequest.instance().POST('/api/users/create/many', data);
+    },
+
+    updateUser: async (id: number, data: UserFormParams): Promise<UserParams> => {
         const resp = await HttpRequest.instance().PUT<{ data: UserParams }>(`/api/users/${id}/update`, data);
 
         return resp.data;

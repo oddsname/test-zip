@@ -13,34 +13,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { ErrorMessage } from "@/components/ui/error-message"
-import { UserParams } from "@/interfaces/users"
-import { useEffect } from "react"
+import { UserFormParams } from "@/domain/user/users-interface"
+import { UserFormData, userZodResolver } from "@/domain/user/users-schema"
 
-const schema = z.object({
-  name: z.string().min(3, 'Name is required'),
-  email: z.string().email('Invalid email'),
-  created_at: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in format YYYY-MM-DD')
-    .refine((val) => !isNaN(Date.parse(val)), {
-      message: 'Invalid date',
-    })
-});
-
-type FormData = z.infer<typeof schema>;
-
-interface CreateUserDialogProps { open: boolean, setOpen: (val: boolean) => void, onSave: (data: Omit<UserParams, 'id'>) => void }
+interface CreateUserDialogProps { open: boolean, setOpen: (val: boolean) => void, onSave: (data: UserFormParams) => void }
 
 export function CreateUserDialog({ open, setOpen, onSave }: CreateUserDialogProps) {
-  const { register, handleSubmit, reset, formState: { errors, } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+  const { register, handleSubmit, reset, formState: { errors, } } = useForm<UserFormData>({
+    resolver: userZodResolver(),
     defaultValues: { email: '', name: '', created_at: '', }
   });
 
-  const onSubmit = (data: FormData) => {
-    const userParams: Omit<UserParams, 'id'> = { ...data, created_at: new Date(data.created_at) }
+  const onSubmit = (data: UserFormData) => {
+    const userParams: UserFormParams = { ...data, created_at: new Date(data.created_at) }
 
     reset();
     onSave(userParams);

@@ -20,7 +20,8 @@ class HttpRequest {
 }
 
 export {
-    HttpRequest, FetchHttpRequest
+    HttpRequest, 
+    FetchHttpRequest
 };
 
 export type { HttpRequestInterface };

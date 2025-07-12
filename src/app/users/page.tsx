@@ -7,14 +7,17 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { DeleteIcon, EditIcon } from "lucide-react";
 import { CreateUserDialog } from "./_components/create-user-dialog";
 import { EditUserDialog } from "./_components/edit-user-dialog";
+import { XlsxUserUploader } from "@/app/users/_components/xlsx-user-uploader";
+import { usersApi } from "@/domain/user/users-service";
+import { UserParams, UserFormParams } from "@/domain/user/users-interface";
+import { DATE_FORMAT, DateHelper } from "@/intrastructure/date";
 import { toast } from "sonner";
-import { DATE_FORMAT, DateHelper } from "@/lib/date";
-import { usersApi } from "@/services/users";
-import { UserParams } from "@/interfaces/users";
-import { FileUploader } from "@/components/file-uploader";
+import { useGlobalLoader } from "@/components/loader/global-loader-provider";
 
 
 export default function Page() {
+  const globalLoader = useGlobalLoader()
+
   const [users, setUsers] = useState<UserParams[]>([]);
 
   const [createUserDialog, setCreateUserDialog] = useState(false);
@@ -40,38 +43,57 @@ export default function Page() {
 
   const onClickDelete = async (user: UserParams) => {
     if (confirm(`Are you really want to delete ${user.name} user?`)) {
-      await usersApi.deteleUser(user.id);
-      await resetUsers();
-      toast.info('User deleted successfully');
+      globalLoader.callback(async () => {
+        await usersApi.deteleUser(user.id);
+        await resetUsers();
+
+        toast.info('User deleted successfully');
+      })
     }
   }
 
-  const onUserCreate = async (data: Omit<UserParams, 'id'>) => {
-    try {
-      await usersApi.createUser(data);
+  const onUserCreate = async (data: UserFormParams) => {
+    globalLoader.callback(async () => {
+      try {
+        await usersApi.createUser(data);
+        await resetUsers();
 
-      await resetUsers();
+        setCreateUserDialog(false)
+        toast.success("User created successfully")
 
-      setCreateUserDialog(false)
-      toast.success("User created successfully")
-    } catch (e) {
-      console.log(e);
-      toast.error("Something went wrong")
-    }
+      } catch (e) {
+        console.log(e);
+        toast.error("Something went wrong")
+      }
+    })
   }
 
   const onUserUpdate = async (data: UserParams) => {
-    try {
-      await usersApi.updateUser(data.id, data);
+    globalLoader.callback(async () => {
+      try {
+        await usersApi.updateUser(data.id, data);
+        await resetUsers();
 
-      await resetUsers();
+        setUpdateUserDialog(false)
+        toast.success("User updated successfully")
+      } catch (e) {
+        console.log(e);
+        toast.error("Something went wrong")
+      }
+    })
+  }
 
-      setUpdateUserDialog(false)
-      toast.success("User updated successfully")
-    } catch (e) {
-      console.log(e);
-      toast.error("Something went wrong")
-    }
+  const onXlsxUsersParsed = async (data: UserFormParams[]) => {
+    globalLoader.callback(async () => {
+      try {
+        await usersApi.createUsers(data);
+        await resetUsers();
+        toast.success("Users were created successfully");
+      } catch (e) {
+        console.log(e)
+        toast.error("Something went wrong");
+      }
+    });
   }
 
   return (
@@ -79,9 +101,9 @@ export default function Page() {
       <div className="flex justify-end gap-4">
         <Button onClick={() => setCreateUserDialog(true)}>Create Item</Button>
 
-        <FileUploader>
+        <XlsxUserUploader onUsersParsed={onXlsxUsersParsed}>
           <Button variant="outline">Upload XLSX</Button>
-        </FileUploader>
+        </XlsxUserUploader>
       </div>
 
       <Table>

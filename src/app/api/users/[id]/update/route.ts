@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/intrastructure/prisma";
 
 type RouteParams = { params: Promise<{ id: string }> }
 
@@ -18,7 +18,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         })
 
         return Response.json({
-            data: { ...user },
+            data: user,
         });
     } catch (e) {
         console.log(e);

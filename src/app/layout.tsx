@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Toaster } from 'sonner'
+
 import "./provider-client"
-import "./provider-server"
-//Load styles
 import "./globals.css";
+
+import { GlobalLoaderProvider } from "@/components/loader/global-loader-provider";
+import { GlobalLoader } from "@/components/loader/global-loader";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,13 +18,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      suppressHydrationWarning
+    >
       <body>
-        <Toaster
-          position="bottom-right"
-          richColors
-        />
-        {children}
+        <GlobalLoaderProvider>
+          <Toaster
+            position="bottom-right"
+            richColors
+          />
+          {children}
+          <GlobalLoader />
+        </GlobalLoaderProvider>
       </body>
     </html>
   );

@@ -37,7 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">TestZip</span>
+                <span className="text-base font-semibold">Test-Zip</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -49,7 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               {menus.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton tooltip={item.title}>
+                  <SidebarMenuButton disabled={true} tooltip={item.title}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </SidebarMenuButton>
